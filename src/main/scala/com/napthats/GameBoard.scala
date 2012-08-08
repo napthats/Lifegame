@@ -2,7 +2,7 @@ package com.napthats
 
 import akka.actor.Actor
 //import akka.pattern.ask
-//import akka.util.duration._
+import akka.util.duration._
 //import akka.util.Timeout
 
 
@@ -10,12 +10,46 @@ sealed abstract class CellType
 case class Live() extends CellType
 case class Dead() extends CellType
 
-sealed abstract class Msg
-case object Show extends Msg
+sealed abstract class MsgToGameBoard
+case object Show extends MsgToGameBoard
+
+
+//receive: MsgToGameBoard
+//send: String
+class GameBoard private (msg: String) extends Actor{
+  def receive = {
+    case m: MsgToGameBoard => m match {
+      case Show => {
+        val msg: String = board.foldRight("")(
+          (line, acc) => line.foldRight("\n")((cell, acc) => GameBoard.showCell(cell) ++ acc) ++ acc
+        )
+        sender ! msg
+      }
+      case GameBoard.Tick => {
+//        board.foreach{println(); _.foreach{GameBoard.showCell(_)}}
+        tick()
+      }
+    }
+    //case _ => println(m)
+    //throw an exception at the default case
+  }
+
+  private def tick(): Unit = {
+    board =
+      List.range(0, board.length).map(
+        x => List.range(0, board.length).map(GameBoard.updateCell(x, _)(board))
+      )
+  }
+
+  private var board: List[List[CellType]] = List(List(Dead(), Dead(), Dead()), List(Live(), Live(), Live()), List(Dead(), Dead(), Dead()))
+
+  context.system.scheduler.schedule(10 seconds, 1 seconds, self, GameBoard.Tick)
+}
 
 
 object GameBoard {
   def apply(msg: String) = new GameBoard(msg)
+  private case object Tick extends MsgToGameBoard
 
   private type AroundCell = (Option[CellType], Option[CellType], Option[CellType], Option[CellType], Option[CellType], Option[CellType], Option[CellType], Option[CellType])
   private def aroundToList(around: AroundCell): List[Option[CellType]] = {
@@ -43,29 +77,10 @@ object GameBoard {
     }
     else Dead()
   }
-}
-
-
-class GameBoard(msg: String) extends Actor {
-  def receive = {
-    case Show => {
-      tick()
-      sender ! view
-    }
-//    case _ => println(msg)
-  }
-
-  private def view: List[List[CellType]] = board
-  private def tick(): Unit = {
-    board =
-      List.range(0, board.length).map(
-        x => List.range(0, board.length).map(GameBoard.updateCell(x, _)(board))
-      )
-  }
   private def showCell(c: CellType): String = {
     if (c == Live()) "++"
     else "--"
   }
-
-  private var board: List[List[CellType]] = List(List(Dead(), Dead(), Dead()), List(Live(), Live(), Live()), List(Dead(), Dead(), Dead()))
 }
+
+

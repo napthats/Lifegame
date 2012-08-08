@@ -17,34 +17,23 @@ import akka.dispatch.Await
 
 class WebSocketBridge(board: ActorRef) extends WebSocket.OnTextMessage {
   implicit val timeout = Timeout(5 seconds)
+  var client: Connection = null
 
   def onOpen(con: Connection) {
+    client = con
   }
 
   def onClose(arg0: Int, arg1: String) {
-
   }
 
   def onMessage(msg: String) {
-    val view_future = board ? Show
-    println(Await.result(view_future, timeout.duration))
-  }
-
-  def disconnectServer() {
-
-  }
-
-
-  def disconnectClient() {
-
-  }
-
-  def connectServer(host: String, port: Int) {
-
-  }
-
-  def send(msg: String) {
-
+    val view_future = (board ? Show).mapTo[String]
+//    val msg: String = Await.result(view_future, timeout.duration)
+    val view = Await.result(view_future, timeout.duration)
+    println(view)
+    client.sendMessage(view)
+//    println(Await.result(view_future, timeout.duration))
+//    println(msg)
   }
 }
 
