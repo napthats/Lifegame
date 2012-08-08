@@ -28,89 +28,28 @@ class WebSocketBridge(board: ActorRef) extends WebSocket.OnTextMessage {
 
   def onMessage(msg: String) {
     val view_future = (board ? Show).mapTo[String]
-//    val msg: String = Await.result(view_future, timeout.duration)
     val view = Await.result(view_future, timeout.duration)
-    println(view)
+//    println(view)
     client.sendMessage(view)
-//    println(Await.result(view_future, timeout.duration))
-//    println(msg)
   }
 }
 
 
 object LifeGame {
   def main(args: Array[String]) {
-    println(Live())
-    println(Live)
-    if(Live() == Live) println("yes")
-    else println("no")
-
+    //initialize GameBoard
     val actor_system = ActorSystem()
     val board = actor_system.actorOf(Props(GameBoard("hi")), name = "test")
 
-/*    GameBoard.view.foreach(
-      line => {
-        println("")
-        line.foreach(c => print(GameBoard.showCell(c)))
-      }
-    )
-    GameBoard.tick()
-    GameBoard.view.foreach(
-      line => {
-        println("")
-        line.foreach(c => print(GameBoard.showCell(c)))
-      }
-    )
-    GameBoard.tick()
-    GameBoard.view.foreach(
-      line => {
-        println("")
-        line.foreach(c => print(GameBoard.showCell(c)))
-      }
-    )
-    GameBoard.tick()
-    GameBoard.view.foreach(
-      line => {
-        println("")
-        line.foreach(c => print(GameBoard.showCell(c)))
-      }
-    )*/
-
-    /*
-        //GameBoard.view(0)(0) = Live()
-        if(GameBoard.view(1)(0) == Dead()) {
-          println("yes")
-        }
-        else {
-          println("no")
-        }
-        GameBoard.tick()
-        if(GameBoard.view(1)(0) == Dead()) {
-          println("yes")
-        }
-        else {
-          println("no")
-        }
-        GameBoard.tick()
-        if(GameBoard.view(1)(0) == Dead()) {
-          println("yes")
-        }
-        else {
-          println("no")
-        }
-    */
-
-//    return
-
+    //initialize jetty
     val server = new Server(8080)
     server.setStopAtShutdown(true)
     server.setGracefulShutdown(1000)
     val root = new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS)
     root.setResourceBase("./")
-    //root.addServlet(DefaultServlet.class, "/*")
+//    root.addServlet(DefaultServlet.class, "/*")
     root.addServlet(new ServletHolder(new WebSocketServlet() {
       val serialVersionUID = 1
-
       def doWebSocketConnect(y: HttpServletRequest, z: String): WebSocket = {
         new WebSocketBridge(board)
       }

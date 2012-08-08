@@ -8,7 +8,7 @@ import akka.util.duration._
 
 sealed abstract class CellType
 case class Live() extends CellType
-case class Dead() extends CellType
+case object Dead extends CellType
 
 sealed abstract class MsgToGameBoard
 case object Show extends MsgToGameBoard
@@ -41,7 +41,7 @@ class GameBoard private (msg: String) extends Actor{
       )
   }
 
-  private var board: List[List[CellType]] = List(List(Dead(), Dead(), Dead()), List(Live(), Live(), Live()), List(Dead(), Dead(), Dead()))
+  private var board: List[List[CellType]] = List(List(Dead, Dead, Dead), List(Live(), Live(), Live()), List(Dead, Dead, Dead))
 
   context.system.scheduler.schedule(10 seconds, 1 seconds, self, GameBoard.Tick)
 }
@@ -72,10 +72,10 @@ object GameBoard {
     else if (live_count == 2) {
       current match {
         case Live() => Live()
-        case _ => Dead()
+        case _ => Dead
       }
     }
-    else Dead()
+    else Dead
   }
   private def showCell(c: CellType): String = {
     if (c == Live()) "++"
