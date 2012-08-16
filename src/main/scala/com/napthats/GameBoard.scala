@@ -7,7 +7,7 @@ import akka.util.duration._
 
 
 sealed abstract class CellType
-case class Live() extends CellType
+case object Live extends CellType
 case object Dead extends CellType
 
 sealed abstract class MsgToGameBoard
@@ -45,15 +45,15 @@ class GameBoard private (msg: String) extends Actor {
 
   private var board: List[List[CellType]] =
     List(
-      List(Dead, Dead, Dead, Dead, Dead, Dead, Dead, Live(), Dead, Live()),
-      List(Live(), Live(), Live(), Dead, Dead, Dead, Dead, Live(), Dead, Live()),
-      List(Dead, Dead, Dead, Dead, Dead, Dead, Live(), Live(), Live(), Live()),
       List(Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead),
-      List(Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead),
-      List(Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead),
-      List(Dead, Dead, Dead, Dead, Dead, Dead, Dead, Live(), Live(), Live()),
-      List(Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead),
-      List(Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead),
+      List(Dead, Dead, Dead, Dead, Live, Live, Dead, Dead, Dead, Dead),
+      List(Dead, Dead, Dead, Live, Dead, Dead, Live, Dead, Dead, Dead),
+      List(Dead, Dead, Live, Dead, Dead, Dead, Dead, Live, Dead, Dead),
+      List(Dead, Live, Dead, Dead, Dead, Dead, Dead, Dead, Live, Dead),
+      List(Dead, Live, Dead, Dead, Dead, Dead, Dead, Dead, Live, Dead),
+      List(Dead, Dead, Live, Dead, Dead, Dead, Dead, Live, Dead, Dead),
+      List(Dead, Dead, Dead, Live, Dead, Dead, Live, Dead, Dead, Dead),
+      List(Dead, Dead, Dead, Dead, Live, Live, Dead, Dead, Dead, Dead),
       List(Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead)
     )
 
@@ -81,18 +81,18 @@ object GameBoard {
     else Some(board(x)(y))
   }
   private def nextCell(around: AroundCell, current: CellType)(implicit board: List[List[CellType]]): CellType = {
-    val live_count = aroundToList(around).count(_ == Some(Live()))
-    if (live_count == 3) Live()
+    val live_count = aroundToList(around).count(_ == Some(Live))
+    if (live_count == 3) Live
     else if (live_count == 2) {
       current match {
-        case Live() => Live()
+        case Live => Live
         case _ => Dead
       }
     }
     else Dead
   }
   private def showCell(c: CellType): String = {
-    if (c == Live()) "+"
+    if (c == Live) "+"
     else "-"
   }
 }
