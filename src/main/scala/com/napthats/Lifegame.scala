@@ -28,10 +28,16 @@ class WebSocketBridge(board: ActorRef) extends WebSocket.OnTextMessage {
   }
 
   def onMessage(msg: String) {
-    val view_future = (board ? Show).mapTo[String]
-    val view = Await.result(view_future, timeout.duration)
-//    println(view)
-    client.sendMessage(view)
+    if (msg.headOption == Some('#')) {
+      val Array(x, y) = msg.tail.split(":")
+      board ! ChangeCell(x.toInt, y.toInt)
+    }
+    else {
+      val view_future = (board ? Show).mapTo[String]
+      val view = Await.result(view_future, timeout.duration)
+//      println(view)
+      client.sendMessage(view)
+    }
   }
 }
 

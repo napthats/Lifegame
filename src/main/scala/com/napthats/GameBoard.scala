@@ -12,6 +12,7 @@ case object Dead extends CellType
 
 sealed abstract class MsgToGameBoard
 case object Show extends MsgToGameBoard
+case class ChangeCell(x: Int, y: Int) extends MsgToGameBoard
 
 
 //receive: MsgToGameBoard
@@ -26,6 +27,9 @@ class GameBoard private (msg: String) extends Actor {
             (line, acc) => line.foldRight("")((cell, acc) => GameBoard.showCell(cell) ++ acc) ++ acc
           )
         sender ! msg
+      }
+      case ChangeCell(x, y) => {
+        board = board.updated(y, board(y).updated(x, Live))
       }
       case GameBoard.Tick => {
 //        board.foreach{println(); _.foreach{GameBoard.showCell(_)}}
@@ -57,7 +61,7 @@ class GameBoard private (msg: String) extends Actor {
       List(Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead)
     )
 
-  context.system.scheduler.schedule(10 seconds, 1 seconds, self, GameBoard.Tick)
+  context.system.scheduler.schedule(10 seconds, 0.5 seconds, self, GameBoard.Tick)
 }
 
 
