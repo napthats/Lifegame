@@ -24,6 +24,7 @@ class WebSocketBridge(board: ActorRef) extends WebSocket.OnTextMessage {
   }
 
   def onClose(arg0: Int, arg1: String) {
+    client.close()
   }
 
   def onMessage(msg: String) {

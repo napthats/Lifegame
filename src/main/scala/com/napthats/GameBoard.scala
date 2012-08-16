@@ -16,13 +16,15 @@ case object Show extends MsgToGameBoard
 
 //receive: MsgToGameBoard
 //send: String
-class GameBoard private (msg: String) extends Actor{
+class GameBoard private (msg: String) extends Actor {
   def receive = {
     case m: MsgToGameBoard => m match {
       case Show => {
-        val msg: String = board.foldRight("")(
-          (line, acc) => line.foldRight("\n")((cell, acc) => GameBoard.showCell(cell) ++ acc) ++ acc
-        )
+        val msg: String =
+          "10:10:" ++
+          board.foldRight("")(
+            (line, acc) => line.foldRight("")((cell, acc) => GameBoard.showCell(cell) ++ acc) ++ acc
+          )
         sender ! msg
       }
       case GameBoard.Tick => {
@@ -41,7 +43,19 @@ class GameBoard private (msg: String) extends Actor{
       )
   }
 
-  private var board: List[List[CellType]] = List(List(Dead, Dead, Dead), List(Live(), Live(), Live()), List(Dead, Dead, Dead))
+  private var board: List[List[CellType]] =
+    List(
+      List(Dead, Dead, Dead, Dead, Dead, Dead, Dead, Live(), Dead, Live()),
+      List(Live(), Live(), Live(), Dead, Dead, Dead, Dead, Live(), Dead, Live()),
+      List(Dead, Dead, Dead, Dead, Dead, Dead, Live(), Live(), Live(), Live()),
+      List(Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead),
+      List(Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead),
+      List(Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead),
+      List(Dead, Dead, Dead, Dead, Dead, Dead, Dead, Live(), Live(), Live()),
+      List(Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead),
+      List(Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead),
+      List(Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead)
+    )
 
   context.system.scheduler.schedule(10 seconds, 1 seconds, self, GameBoard.Tick)
 }
@@ -78,8 +92,8 @@ object GameBoard {
     else Dead
   }
   private def showCell(c: CellType): String = {
-    if (c == Live()) "++"
-    else "--"
+    if (c == Live()) "+"
+    else "-"
   }
 }
 
