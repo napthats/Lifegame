@@ -22,7 +22,7 @@ class GameBoard private (msg: String) extends Actor {
     case m: MsgToGameBoard => m match {
       case Show => {
         val msg: String =
-          "10:10:" ++
+          "60:60:" ++
           board.foldRight("")(
             (line, acc) => line.foldRight("")((cell, acc) => GameBoard.showCell(cell) ++ acc) ++ acc
           )
@@ -49,21 +49,9 @@ class GameBoard private (msg: String) extends Actor {
       )
   }
 
-  private var board: List[List[CellType]] =
-    List(
-      List(Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead),
-      List(Dead, Dead, Dead, Dead, Live, Live, Dead, Dead, Dead, Dead),
-      List(Dead, Dead, Dead, Live, Dead, Dead, Live, Dead, Dead, Dead),
-      List(Dead, Dead, Live, Dead, Dead, Dead, Dead, Live, Dead, Dead),
-      List(Dead, Live, Dead, Dead, Dead, Dead, Dead, Dead, Live, Dead),
-      List(Dead, Live, Dead, Dead, Dead, Dead, Dead, Dead, Live, Dead),
-      List(Dead, Dead, Live, Dead, Dead, Dead, Dead, Live, Dead, Dead),
-      List(Dead, Dead, Dead, Live, Dead, Dead, Live, Dead, Dead, Dead),
-      List(Dead, Dead, Dead, Dead, Live, Live, Dead, Dead, Dead, Dead),
-      List(Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead, Dead)
-    )
+  private var board: List[List[CellType]] = List().padTo(60, List().padTo(60, Dead))
 
-  context.system.scheduler.schedule(10 seconds, 0.5 seconds, self, GameBoard.Tick)
+  context.system.scheduler.schedule(3 seconds, 0.5 seconds, self, GameBoard.Tick)
 }
 
 
