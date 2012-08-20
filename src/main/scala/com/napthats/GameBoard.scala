@@ -29,7 +29,9 @@ class GameBoard private (msg: String) extends Actor {
         sender ! msg
       }
       case ChangeCell(x, y) => {
-        board = board.updated(y, board(y).updated(x, Live))
+        board = board.updated(y, board(y).updated(x, 
+          if (board(y)(x) == Live) Dead else Live
+        ))
       }
       case GameBoard.Tick => {
 //        board.foreach{println(); _.foreach{GameBoard.showCell(_)}}
