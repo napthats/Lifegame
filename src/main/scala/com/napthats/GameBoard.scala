@@ -13,6 +13,7 @@ case object Dead extends CellType
 sealed abstract class MsgToGameBoard
 case object Show extends MsgToGameBoard
 case class ChangeCell(x: Int, y: Int) extends MsgToGameBoard
+case object Clear extends MsgToGameBoard
 
 
 //receive: MsgToGameBoard
@@ -36,6 +37,9 @@ class GameBoard private (msg: String) extends Actor {
       case GameBoard.Tick => {
 //        board.foreach{println(); _.foreach{GameBoard.showCell(_)}}
         tick()
+      }
+      case Clear => {
+        board = List().padTo(60, List().padTo(60, Dead))
       }
     }
     //case _ => println(m)

@@ -32,6 +32,9 @@ class WebSocketBridge(board: ActorRef) extends WebSocket.OnTextMessage {
       val Array(x, y) = msg.tail.split(":")
       board ! ChangeCell(x.toInt, y.toInt)
     }
+    else if (msg == "clear") {
+      board ! Clear
+    }
     else {
       val view_future = (board ? Show).mapTo[String]
       val view = Await.result(view_future, timeout.duration)
