@@ -55,7 +55,7 @@ class GameBoard private (msg: String) extends Actor {
 
   private var board: List[List[CellType]] = List().padTo(60, List().padTo(60, Dead))
 
-  context.system.scheduler.schedule(3 seconds, 0.5 seconds, self, GameBoard.Tick)
+  context.system.scheduler.schedule(3 seconds, 0.2 seconds, self, GameBoard.Tick)
 }
 
 
